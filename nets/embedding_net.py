@@ -9,7 +9,7 @@ from flax import nnx
 class EmbeddingNet(nnx.Module):
     linear: nnx.Linear | None 
 
-    def __init__(self, d_hidden, T, rngs):
+    def __init__(self, T:int, d_hidden:int, rngs:nnx.Rngs):
         self.rngs = rngs
         self.d_hidden = d_hidden
         self.T = T
