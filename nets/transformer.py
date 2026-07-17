@@ -1,6 +1,4 @@
 # %%%
-import numpy as np
-import jax
 import jax.numpy as jnp
 from flax import nnx
 
@@ -49,8 +47,7 @@ class TransformerBlock(nnx.Module):
         M = jnp.where(mask==1, -jnp.inf, 0)
 
         scores = jnp.matmul(Q, jnp.swapaxes(K, -1, -2)) / jnp.sqrt(self.d_keys) + M
-        out = nnx.softmax(scores, axis=-1)
-        attn_out = jnp.matmul(out, V)
+        attn_out = jnp.matmul(nnx.softmax(scores, axis=-1), V)
         x2 = self.output_linear(attn_out) + x
 
         x2_ln = self.layernorm2(x2)
@@ -58,15 +55,15 @@ class TransformerBlock(nnx.Module):
 
 
 # %%
-rngs = nnx.Rngs(0)
-T = 10
-d_h = 5
-d_k = 3 # same as d_q
-d_v = 4
-d_ff = 7
-transformer = TransformerBlock(T, d_h, d_k, d_v, d_ff, rngs)
-x = jax.random.normal(key=jax.random.PRNGKey(0), shape=(10, 5))
+# rngs = nnx.Rngs(0)
+# T = 10
+# d_h = 5
+# d_k = 3 # same as d_q
+# d_v = 4
+# d_ff = 7
+# transformer = TransformerBlock(T, d_h, d_k, d_v, d_ff, rngs)
+# x = jax.random.normal(key=jax.random.PRNGKey(0), shape=(10, 5))
 
-y = transformer(x)
-print(y.shape)
-print(y)
+# y = transformer(x)
+# print(y.shape)
+# print(y)

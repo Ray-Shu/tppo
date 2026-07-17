@@ -1,9 +1,4 @@
 # %%
-from typing import Any
-
-from flax.typing import RNGSequences
-import numpy as np
-import jax
 import jax.numpy as jnp
 from flax import nnx
 
@@ -39,12 +34,12 @@ class EmbeddingNet(nnx.Module):
         return E
 
 # %%
-enet = EmbeddingNet(d_hidden=4, rngs=nnx.Rngs(42))
+# enet = EmbeddingNet(d_hidden=4, rngs=nnx.Rngs(42))
 
-key = jax.random.PRNGKey(0)
-hidden = 9
-shapes = ((10, 9*9*3), (10, 4), (10, 1))
-keys = jax.random.split(key, len(shapes))
-obs = tuple(jax.random.normal(key, shape) for key,shape in zip(keys, shapes))
-e = enet(hidden, obs)
-print(e.shape)
+# key = jax.random.PRNGKey(0)
+# hidden = 9
+# shapes = ((10, 9*9*3), (10, 4), (10, 1))
+# keys = jax.random.split(key, len(shapes))
+# obs = tuple(jax.random.normal(key, shape) for key,shape in zip(keys, shapes))
+# e = enet(hidden, obs)
+# print(e.shape)
