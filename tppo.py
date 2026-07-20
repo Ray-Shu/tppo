@@ -40,10 +40,13 @@ class TransformerPPO(nnx.Module):
         obs: ((T, obs_dim), (T, action_dim), (T, 1)), where T is the context window. 
         """
         x = self.embed(hidden, obs)
-        out = self.transformer(x)
-        
-        print(x.shape)
-        print(out.shape)
+        H = self.transformer(x)
+
+        h = H[-1, :] # get the current result from timestep t
+        pi = self.actor(h)
+        value = self.critic(h)
+
+        return pi, value        
 
 
 # %%
@@ -61,5 +64,8 @@ obs = tuple(jax.random.normal(key, shape) for key,shape in zip(keys, shapes))
 
 tppo =TransformerPPO(T, d_hidden, d_keys, d_vals, d_ff, rngs)
 
-tppo(obs)
+pi, value = tppo(hidden, obs)
+
+print(pi.probs)
+print(value)
 
