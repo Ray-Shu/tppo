@@ -1,8 +1,5 @@
 # %%
-import numpy as np
-import jax
 import distrax
-import jax.numpy as jnp
 from flax import nnx
 
 # %%
@@ -27,15 +24,15 @@ class CriticHead(nnx.Module):
         return self.linear(x)
 
 # %%
-d_hidden = 4
-rngs = nnx.Rngs(42)
+# d_hidden = 4
+# rngs = nnx.Rngs(42)
 
-actor = ActorHead(d_hidden, rngs)
-critic = CriticHead(d_hidden, rngs)
+# actor = ActorHead(d_hidden, rngs)
+# critic = CriticHead(d_hidden, rngs)
 
-x = jax.random.normal(jax.random.key(0), (10, d_hidden))
-probs = actor(x)
-vals = critic(x)
+# x = jax.random.normal(jax.random.key(0), (10, d_hidden))
+# probs = actor(x)
+# vals = critic(x)
 
-print("probability:", probs.probs)
-print("state values:", vals)
+# print("probability:", probs.probs)
+# print("state values:", vals)

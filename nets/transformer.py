@@ -1,5 +1,4 @@
-# %%%
-import numpy as np
+# %%
 import jax
 import jax.numpy as jnp
 from flax import nnx
@@ -14,14 +13,16 @@ E: embedding matrix
 P: position matrix
 """
 class TransformerBlock(nnx.Module):
-    def __init__(self, T:int, d_hidden:int, d_keys:int, d_vals:int, d_ff:int, rngs:nnx.Rngs):
+    def __init__(self, T:int, d_hidden:int, d_keys:int, d_vals:int, d_ff:int, rngs:nnx.Rngs, band:int|None=None):
         self.context_window = T
+        self.band = T if band is None else band  # band is how much the model sees (ie. receptive field)
         self.d_hidden = d_hidden
         self.d_queries = d_keys  # d_queries must be the same as d_keys
         self.d_keys = d_keys
         self.d_values = d_vals
         self.d_ff = d_ff
         self.rngs = rngs
+        self.relative_bias = nnx.Param(jnp.zeros((self.band))) # positional encodings relative to each transformer block
 
         self.layernorm1 = nnx.LayerNorm(num_features=self.d_hidden, rngs=self.rngs)
         self.layernorm2 = nnx.LayerNorm(num_features=self.d_hidden, rngs=self.rngs)
@@ -38,6 +39,10 @@ class TransformerBlock(nnx.Module):
         )
 
     def __call__(self, x):
+        """
+        
+        """
+        M = x.shape[1]
         x_ln = self.layernorm1(x)
 
         # attn block
@@ -45,28 +50,39 @@ class TransformerBlock(nnx.Module):
         K = self.keys_linear(x_ln)
         V = self.values_linear(x_ln)
 
-        mask = jnp.triu(jnp.ones([self.context_window, self.context_window]), k=1)
-        M = jnp.where(mask==1, -jnp.inf, 0)
+        # create a context-window aware mask
+        i = jnp.arange(M)[:, None]
+        j = jnp.arange(M)[None, :]
+        causal = (j <= i) & (j > i - self.band)
 
-        scores = jnp.matmul(Q, jnp.swapaxes(K, -1, -2)) / jnp.sqrt(self.d_keys) + M
-        out = nnx.softmax(scores, axis=-1)
-        attn_out = jnp.matmul(out, V)
+        dist = jnp.clip(i - j, 0, self.band - 1)   # 0 = self, band-1 = oldest in window
+
+        scores = jnp.matmul(Q, jnp.swapaxes(K, -1, -2)) / jnp.sqrt(self.d_keys)
+        scores = scores + self.relative_bias[dist]
+        scores = jnp.where(causal, scores, -jnp.inf)
+
+        attn_out = jnp.matmul(nnx.softmax(scores, axis=-1), V)
         x2 = self.output_linear(attn_out) + x
 
         x2_ln = self.layernorm2(x2)
         return self.ffn(x2_ln) + x2
 
 
-# %%
-rngs = nnx.Rngs(0)
-T = 10
-d_h = 5
-d_k = 3 # same as d_q
-d_v = 4
-d_ff = 7
-transformer = TransformerBlock(T, d_h, d_k, d_v, d_ff, rngs)
-x = jax.random.normal(key=jax.random.PRNGKey(0), shape=(10, 5))
 
-y = transformer(x)
-print(y.shape)
-print(y)
+# %%
+if __name__ == "__main__": 
+    rngs = nnx.Rngs(0)
+    T = 3
+    N = 6
+    d_h = 5
+    d_k = 3 # same as d_q
+    d_v = 4
+    d_ff = 7
+    transformer = TransformerBlock(T, d_h, d_k, d_v, d_ff, rngs)
+    x = jax.random.normal(key=jax.random.PRNGKey(0), shape=(1, T-1+N, d_h))
+
+    y = transformer(x)
+    print(y)
+    print(y.shape)
+
+# %%
