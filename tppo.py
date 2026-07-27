@@ -1,4 +1,3 @@
-# %%
 from typing import Any
 import numpy
 
@@ -11,7 +10,6 @@ from nets.actor_critics import ActorHead, CriticHead
 from nets.embedding_net import EmbeddingNet
 from nets.transformer import TransformerBlock
 
-# %%
 class TransformerPPO(nnx.Module):
     def __init__(self, T:int, d_hidden:int, d_keys:int, d_vals:int, d_ff: int, rngs:nnx.Rngs, band:int|None = None, num_layers=1):
         """
@@ -59,25 +57,4 @@ class TransformerPPO(nnx.Module):
         pi, value = self.actor(h), self.critic(h)
 
         return pi, value        
-
-
-# %%
-if __name__ == "__main__":
-    B = 2
-    T = 5
-    rngs = nnx.Rngs(42)
-    d_hidden = 4
-    d_keys = 3
-    d_vals = 6
-    d_ff = 10
-    shapes = ((B, T, 9 * 9 * 3), (B, T, 4), (B, T, 1))
-    keys = jax.random.split(rngs.params(), len(shapes))
-    obs = tuple(jax.random.normal(key, shape) for key, shape in zip(keys, shapes))
-
-    tppo = TransformerPPO(T, d_hidden, d_keys, d_vals, d_ff, rngs)
-
-    pi, value = tppo(None, obs)
-
-    print(pi.probs)
-    print(value)
 

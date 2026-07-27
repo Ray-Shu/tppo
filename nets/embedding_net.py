@@ -1,11 +1,9 @@
-# %%
 from typing import Any
 
 import jax
 import jax.numpy as jnp
 from flax import nnx
 
-# %%
 class EmbeddingNet(nnx.Module):
     linear: nnx.Linear | None 
 
@@ -47,18 +45,3 @@ class EmbeddingNet(nnx.Module):
         E = self.linear(U)
 
         return E
-
-# %%
-# rngs = nnx.Rngs(42)
-# hidden = 9
-# T = 10
-# enet = EmbeddingNet(d_hidden=4, T=T, rngs=rngs)
-
-
-# shapes = ((T, 9*9*3), (T, 4), (T, 1))
-# keys = jax.random.split(rngs.params(), len(shapes))
-# obs = tuple(jax.random.normal(key, shape) for key,shape in zip(keys, shapes))
-# e = enet(hidden, obs)
-# print(e.shape)
-
-# %%

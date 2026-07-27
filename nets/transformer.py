@@ -1,17 +1,8 @@
-# %%
 import jax
 import jax.numpy as jnp
 from flax import nnx
 
-# %%
-"""
-A single transformer block.
 
-Takes the embedding token X = E + P, where X has shape [T x d_hidden].
-T: size of the context window
-E: embedding matrix
-P: position matrix
-"""
 class TransformerBlock(nnx.Module):
     def __init__(self, T:int, d_hidden:int, d_keys:int, d_vals:int, d_ff:int, rngs:nnx.Rngs, band:int|None=None):
         self.context_window = T
@@ -58,7 +49,7 @@ class TransformerBlock(nnx.Module):
         dist = jnp.clip(i - j, 0, self.band - 1)   # 0 = self, band-1 = oldest in window
 
         scores = jnp.matmul(Q, jnp.swapaxes(K, -1, -2)) / jnp.sqrt(self.d_keys)
-        scores = scores + self.relative_bias[dist]
+        scores = scores + self.relative_bias[dist] # relative_bias is a matrix that holds distances for every token
         scores = jnp.where(causal, scores, -jnp.inf)
 
         attn_out = jnp.matmul(nnx.softmax(scores, axis=-1), V)
@@ -67,22 +58,3 @@ class TransformerBlock(nnx.Module):
         x2_ln = self.layernorm2(x2)
         return self.ffn(x2_ln) + x2
 
-
-
-# %%
-if __name__ == "__main__": 
-    rngs = nnx.Rngs(0)
-    T = 3
-    N = 6
-    d_h = 5
-    d_k = 3 # same as d_q
-    d_v = 4
-    d_ff = 7
-    transformer = TransformerBlock(T, d_h, d_k, d_v, d_ff, rngs)
-    x = jax.random.normal(key=jax.random.PRNGKey(0), shape=(1, T-1+N, d_h))
-
-    y = transformer(x)
-    print(y)
-    print(y.shape)
-
-# %%
