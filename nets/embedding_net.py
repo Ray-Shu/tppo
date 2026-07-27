@@ -9,27 +9,27 @@ from flax import nnx
 class EmbeddingNet(nnx.Module):
     linear: nnx.Linear | None 
 
-    def __init__(self, T:int, d_hidden:int, rngs:nnx.Rngs):
+    def __init__(self, d_hidden:int, rngs:nnx.Rngs):
         self.rngs = rngs
         self.d_hidden = d_hidden
-        self.T = T
 
         self.is_initialized = False
         self.linear = nnx.data(None)
 
-        # positional embedding matrix (P) 
-        p_init = jax.random.normal(self.rngs.params(), (self.T, self.d_hidden))
-        self.P = nnx.Param(p_init)
-
-    def __call__(self, hidden:Any, obs):
+    def __call__(self, obs):
         """
-        hidden: Any
-        obs: ((T, obs_dim), (T, action_dim), (T, 1)), where T is the context window. 
+        obs: ((B, M, obs_dim), (B, M, action_dim), (B, M, 1)) where:
+            - B is the batch size  
+            - M is the sequence length = T-1+N 
+            - T is context length, N is the rollout steps  
+
+        returns: 
+            E: embedding matrix of shape (B, M, d_hidden)
         """
 
-        # U matrix, a concatenation of observation, last action and last reward
+        # concat alongside last dimension
         obs, last_action, last_reward = obs
-        obs = jnp.reshape(obs, (obs.shape[0], -1))
+        obs = jnp.reshape(obs, obs.shape[:2] + (-1,))
         U = jnp.concatenate(
             (obs, last_action, last_reward),
             axis = -1
@@ -45,9 +45,8 @@ class EmbeddingNet(nnx.Module):
             self.is_initialized = True
 
         E = self.linear(U)
-        X = E + self.P
 
-        return X 
+        return E
 
 # %%
 # rngs = nnx.Rngs(42)
