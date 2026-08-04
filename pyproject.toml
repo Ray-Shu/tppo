@@ -11,6 +11,11 @@ dependencies = [
 ]
 requires-python = ">=3.11, <3.12"
 
+
+
+[dependency-groups]
+gym = ["gymnasium"]
+
 [tool.uv]
 package = true
 

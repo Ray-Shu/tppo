@@ -6,9 +6,9 @@ import jax.numpy as jnp
 import distrax
 from flax import nnx
 
-from nets.actor_critics import ActorHead, CriticHead
-from nets.embedding_net import EmbeddingNet
-from nets.transformer import TransformerBlock
+from tppo.algorithms.nets.actor_critics import ActorHead, CriticHead
+from tppo.algorithms.nets.embedding_net import EmbeddingNet
+from tppo.algorithms.nets.transformer import TransformerBlock
 
 class TransformerPPO(nnx.Module):
     def __init__(self, T:int, d_hidden:int, d_keys:int, d_vals:int, d_ff: int, rngs:nnx.Rngs, band:int|None = None, num_layers=1):
