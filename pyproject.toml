@@ -11,6 +11,9 @@ dependencies = [
 ]
 requires-python = ">=3.11, <3.12"
 
+[project.optional-dependencies] 
+cuda = ["jax[cuda12]>=0.4.38"]  # use --extra cuda
+
 [tool.uv]
 package = true
 
