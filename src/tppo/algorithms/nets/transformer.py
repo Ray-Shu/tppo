@@ -30,9 +30,7 @@ class TransformerBlock(nnx.Module):
         )
 
     def __call__(self, x):
-        """
-        
-        """
+        print("X:", x.shape)
         M = x.shape[1]
         x_ln = self.layernorm1(x)
 
@@ -51,6 +49,9 @@ class TransformerBlock(nnx.Module):
         scores = jnp.matmul(Q, jnp.swapaxes(K, -1, -2)) / jnp.sqrt(self.d_keys)
         scores = scores + self.relative_bias[dist] # relative_bias is a matrix that holds distances for every token
         scores = jnp.where(causal, scores, -jnp.inf)
+
+        print("scores mat:", scores.shape)
+        print("vals mat:", V.shape)
 
         attn_out = jnp.matmul(nnx.softmax(scores, axis=-1), V)
         x2 = self.output_linear(attn_out) + x

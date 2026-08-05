@@ -7,7 +7,8 @@ dependencies = [
     "flax",
     "distrax",
     "numpy", 
-    "gymnax" 
+    "gymnax", 
+    "continual-foragax"
 ]
 requires-python = ">=3.11, <3.12"
 
