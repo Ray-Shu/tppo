@@ -7,9 +7,10 @@ from flax import nnx
 class EmbeddingNet(nnx.Module):
     linear: nnx.Linear | None 
 
-    def __init__(self, d_hidden:int, rngs:nnx.Rngs):
+    def __init__(self, d_hidden:int, rngs:nnx.Rngs, concat=True):
         self.rngs = rngs
         self.d_hidden = d_hidden
+        self.concat = concat
 
         self.is_initialized = False
         self.linear = nnx.data(None)
@@ -26,12 +27,17 @@ class EmbeddingNet(nnx.Module):
         """
 
         # concat alongside last dimension
-        obs, last_action, last_reward = obs
-        obs = jnp.reshape(obs, obs.shape[:2] + (-1,))
-        U = jnp.concatenate(
-            (obs, last_action, last_reward),
-            axis = -1
-        )
+        if self.concat: 
+            obs, last_action, last_reward = obs
+            obs = jnp.reshape(obs, obs.shape[:2] + (-1,))
+            U = jnp.concatenate(
+                (obs, last_action, last_reward),
+                axis = -1
+            )
+        else: 
+            U = jnp.reshape(obs, (1,-1))
+            print(U)
+            print(U.shape)
 
         if not self.is_initialized: 
             # trainable embedding matrix (E) 
