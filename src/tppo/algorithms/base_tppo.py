@@ -44,7 +44,7 @@ class TransformerPPO(nnx.Module):
         self.d_ff = d_ff
         self.num_blocks = num_blocks
         if band is None: 
-            band = self.T / self.num_blocks
+            band = (self.T - 1) // self.num_blocks + 1
 
         # nets
         self.embed = EmbeddingNet(self.d_hidden, rngs, concat_embedding=concat_embedding)
