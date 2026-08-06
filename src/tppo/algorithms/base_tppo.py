@@ -47,7 +47,7 @@ class TransformerPPO(nnx.Module):
             band = self.T / self.num_blocks
 
         # nets
-        self.embed = EmbeddingNet(self.d_hidden, rngs, concat_embedding)
+        self.embed = EmbeddingNet(self.d_hidden, rngs, concat_embedding=concat_embedding)
         self.critic = CriticHead(self.d_hidden, rngs)
 
         # actor 

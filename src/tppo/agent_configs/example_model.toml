@@ -6,6 +6,4 @@ d_vals = 64
 d_ff = 128
 band = 100
 num_blocks = 1
-actor_out = 1   # actor's output dimension
-env_type = 'continuous'  # discrete or continuous
 concat_embedding = false

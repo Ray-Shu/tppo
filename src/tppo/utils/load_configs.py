@@ -1,3 +1,7 @@
+"""
+Loads agent configs for currently .json and .toml files.
+"""
+
 import json 
 import tomllib 
 from pathlib import Path

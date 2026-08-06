@@ -7,10 +7,10 @@ from flax import nnx
 class EmbeddingNet(nnx.Module):
     linear: nnx.Linear | None 
 
-    def __init__(self, d_hidden:int, rngs:nnx.Rngs, concat=True):
+    def __init__(self, d_hidden:int, rngs:nnx.Rngs, concat_embedding=True):
         self.rngs = rngs
         self.d_hidden = d_hidden
-        self.concat = concat
+        self.concat = concat_embedding
 
         self.is_initialized = False
         self.linear = nnx.data(None)
