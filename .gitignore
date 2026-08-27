@@ -1,6 +1,7 @@
 .venv/
 uv.lock
 *.md
+!README.md
 
 *.pyc
 __pycache__/
